@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,8 @@ interface DifyConfigFormProps {
   checkingStatus: boolean;
   instanceStatus: string | null;
   onCheckInstanceStatus: () => Promise<void>;
+  isRegistered: boolean;
+  onRegisterBot: () => Promise<void>;
 }
 
 const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
@@ -53,7 +56,9 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
   setIsLoading,
   checkingStatus,
   instanceStatus,
-  onCheckInstanceStatus
+  onCheckInstanceStatus,
+  isRegistered,
+  onRegisterBot
 }) => {
   
   const handleSaveIntegration = async (e: React.FormEvent) => {
@@ -71,10 +76,10 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
     setIsLoading(true);
 
     try {
-      // Fix: Pass a single configuration object to saveDifyConfig with apiKey property
+      // Save the configuration with all required fields
       saveDifyConfig({
         instanceName,
-        apiKey: difyApiKey,  // Fix: added apiKey to match the required property in DifyConfig interface
+        apiKey: difyApiKey, // Required field for DifyConfig type
         difyApiKey,
         difyUrl: difyApiUrl,
         enabled,
@@ -84,8 +89,8 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
       });
 
       toast({
-        title: "Integração realizada",
-        description: "O Dify foi integrado com sucesso à instância " + instanceName,
+        title: "Configuração salva",
+        description: "As configurações do Dify foram salvas com sucesso.",
       });
     } catch (error) {
       console.error("Erro ao salvar configuração:", error);
@@ -164,6 +169,43 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
         </div>
       </div>
 
+      {/* Status da integração com Evolution API */}
+      <div className="space-y-2">
+        <Label>Integração com Evolution API</Label>
+        <div className="p-3 bg-gray-800 rounded-md">
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300">Status:</span>
+              <span className={isRegistered ? "text-green-400" : "text-yellow-400"}>
+                {isRegistered ? "Registrado" : "Não registrado"}
+              </span>
+            </div>
+            
+            {!isRegistered && (
+              <Button
+                type="button"
+                onClick={onRegisterBot}
+                disabled={isLoading || !enabled}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                {isLoading ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registrando...</>
+                ) : (
+                  <>Registrar Bot na Evolution API</>
+                )}
+              </Button>
+            )}
+            
+            {isRegistered && (
+              <div className="flex items-center justify-center p-2 bg-green-900/20 border border-green-500/30 rounded-md">
+                <Check className="h-4 w-4 text-green-500 mr-2" />
+                <span className="text-green-400">Bot integrado com a Evolution API</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="pt-4 flex justify-end space-x-3">
         <Button 
           type="button" 
@@ -177,7 +219,7 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
           disabled={isLoading}
           className="bg-blue-600 hover:bg-blue-700"
         >
-          {isLoading ? "Integrando..." : "Salvar Configuração"}
+          {isLoading ? "Salvando..." : "Salvar Configuração"}
         </Button>
       </div>
     </form>

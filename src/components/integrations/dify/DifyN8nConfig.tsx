@@ -67,7 +67,7 @@ const DifyN8nConfig: React.FC<DifyN8nConfigProps> = ({
               className="bg-gray-800 border-gray-700 text-white"
             />
             <p className="text-xs text-gray-400">
-              Use os placeholders {'{{'}{'{'}message{'}}'}{'}}'}, {'{{'}{'{'}sender{'}}'}{'}}'}, {'{{'}{'{'}instance{'}}'}{'}}'} e {'{{'}{'{'}timestamp{'}}'}{'}}'}
+              Use os placeholders {'{{message}}'}, {'{{sender}}'}, {'{{instance}}'} e {'{{timestamp}}'}
             </p>
           </div>
 

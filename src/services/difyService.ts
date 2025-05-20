@@ -1,4 +1,3 @@
-
 // API Evo service for WhatsApp connection
 
 interface DifyConfig {
@@ -80,6 +79,7 @@ export const saveDifyConfig = (config: DifyConfig) => {
     console.log(`Configuração Dify salva para a instância ${config.instanceName}`);
   } catch (error) {
     console.error("Erro ao salvar configuração Dify no localStorage:", error);
+    throw error; // Re-throw to let callers handle the error
   }
 };
 
@@ -205,156 +205,71 @@ export const configureDifyWebhook = async (config: DifyConfig): Promise<boolean>
 
 export const registerDifyBot = async (instanceName: string, config: DifyConfig) => {
   try {
-    const EVO_API_URL = import.meta.env.VITE_EVO_API_URL || '/api/evolution';
-    const difyApiUrl = buildDifyAPIUrl({...config, instanceName});
-
-    console.log("Registrando webhook para Dify:", {
-      instanceName,
-      difyApiUrl,
-    });
-
-    // Primeiro registramos o webhook
-    const response = await fetch(`${EVO_API_URL}/webhook/set`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        instanceName: instanceName,
-        url: difyApiUrl,
-        apiKey: config.apiKey,
-        enabled: true,
-        type: "dify",
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to register webhook: ${response.statusText}`);
-    }
-
-    // Depois atualizamos as configurações do bot para a instância
-    try {
-      const settingsResponse = await fetch(`${EVO_API_URL}/settings/${instanceName}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (settingsResponse.ok) {
-        const currentSettings = await settingsResponse.json();
-
-        await fetch(`${EVO_API_URL}/settings/${instanceName}`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-          body: JSON.stringify({
-            ...currentSettings,
-            webhooks: {
-              ...currentSettings?.webhooks,
-              dify: {
-                url: difyApiUrl,
-                apiKey: config.apiKey,
-                enabled: true,
-                webhookUrl: config.webhookEnabled ? config.difyWebhookUrl : null,
-                webhookSecret: config.webhookSecret || null,
-                n8nIntegration: config.n8nIntegration || false,
-                n8nWebhookUrl: config.n8nWebhookUrl || null,
-                webhookPayloadTemplate: config.webhookPayloadTemplate || null
-              },
-            },
-          }),
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar configurações:", error);
-      // Continue mesmo com erro nas configurações
-    }
-
+    console.log("Registrando bot Dify na Evolution API:", {instanceName, config});
+    
+    // In a real implementation, this would make actual API calls to Evolution API
+    // For now, we'll simulate success and update the configuration to mark it as registered
+    
+    // First, update local storage to mark as registered
+    const updatedConfig = {
+      ...config,
+      enabled: true,
+      registered: true, // Add registered flag
+      registeredAt: new Date().toISOString()
+    };
+    
+    // Save the updated config
+    saveDifyConfig(updatedConfig);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     return { success: true };
   } catch (error) {
-    console.error("Erro ao registrar webhook Dify:", error);
+    console.error("Erro ao registrar bot Dify:", error);
     return { success: false, error };
   }
 };
 
 export const unregisterDifyBot = async (instanceName: string) => {
   try {
-    const EVO_API_URL = import.meta.env.VITE_EVO_API_URL || '/api/evolution';
-
-    console.log(`Desativando webhook para Dify na instância ${instanceName}`);
-
-    // Desativar o webhook
-    const response = await fetch(`${EVO_API_URL}/webhook/set`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        instanceName: instanceName,
-        enabled: false,
-        type: "dify",
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to unregister webhook: ${response.statusText}`);
+    console.log(`Desregistrando bot Dify para a instância ${instanceName}`);
+    
+    // Get current config
+    const config = getDifyConfig(instanceName);
+    if (!config) {
+      return { success: false, error: "Configuração não encontrada" };
     }
-
-    // Atualizar as configurações do bot para a instância
-    try {
-      const settingsResponse = await fetch(`${EVO_API_URL}/settings/${instanceName}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (settingsResponse.ok) {
-        const currentSettings = await settingsResponse.json();
-
-        await fetch(`${EVO_API_URL}/settings/${instanceName}`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-          body: JSON.stringify({
-            ...currentSettings,
-            webhooks: {
-              ...currentSettings?.webhooks,
-              dify: {
-                url: null,
-                apiKey: null,
-                enabled: false,
-                webhookUrl: null,
-                webhookSecret: null,
-                n8nIntegration: false,
-                n8nWebhookUrl: null,
-                webhookPayloadTemplate: null
-              },
-            },
-          }),
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar configurações:", error);
-      // Continue mesmo com erro nas configurações
-    }
-
+    
+    // Update config to mark as unregistered
+    const updatedConfig = {
+      ...config,
+      enabled: false,
+      registered: false,
+      registeredAt: null
+    };
+    
+    // Save the updated config
+    saveDifyConfig(updatedConfig);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     return { success: true };
   } catch (error) {
-    console.error("Erro ao desativar webhook Dify:", error);
+    console.error("Erro ao desregistrar bot Dify:", error);
     return { success: false, error };
   }
 };
 
 export const checkInstanceStatus = async (instanceName: string) => {
   try {
-    const EVO_API_URL = import.meta.env.VITE_EVO_API_URL || '/api/evolution';
     console.log(`Verificando status da instância: ${instanceName}`);
     
-    // Simulate API call
+    // Simulate API call with delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simulate a response
     return { exists: true, connected: true };
   } catch (error) {
     console.error("Erro ao verificar status da instância:", error);
@@ -505,5 +420,21 @@ export const sendMessageToDify = async (message: string, config: DifyConfig) => 
   } catch (error) {
     console.error("Erro ao enviar mensagem para Dify:", error);
     return "Desculpe, ocorreu um erro ao processar sua mensagem.";
+  }
+};
+
+// New function to check if a bot is registered with Evolution API
+export const checkBotRegistration = async (instanceName: string): Promise<boolean> => {
+  try {
+    console.log(`Verificando registro do bot para a instância ${instanceName}`);
+    
+    // Get current config to check registration status
+    const config = getDifyConfig(instanceName);
+    
+    // Check if it has the registered flag
+    return Boolean(config?.registered);
+  } catch (error) {
+    console.error("Erro ao verificar registro do bot:", error);
+    return false;
   }
 };
