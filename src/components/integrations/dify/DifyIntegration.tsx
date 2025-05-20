@@ -26,7 +26,7 @@ const DifyIntegration: React.FC<DifyIntegrationProps> = ({ instanceName }) => {
     if (savedConfig) {
       setDifyApiKey(savedConfig.difyApiKey || "");
       setDifyApiUrl(savedConfig.difyUrl || "");
-      setEnabled(savedConfig.enabled);
+      setEnabled(savedConfig.enabled || false);
       setN8nIntegration(savedConfig.n8nIntegration || false);
       setN8nWebhookUrl(savedConfig.n8nWebhookUrl || "");
       setWebhookPayloadTemplate(savedConfig.webhookPayloadTemplate || '{"message": "{{message}}", "sender": "{{sender}}", "instance": "{{instance}}", "timestamp": "{{timestamp}}"}');
@@ -36,11 +36,15 @@ const DifyIntegration: React.FC<DifyIntegrationProps> = ({ instanceName }) => {
   const handleCheckInstanceStatus = async () => {
     setCheckingStatus(true);
     try {
-      const status = await checkInstanceStatus(difyApiUrl, difyApiKey);
-      setInstanceStatus(status);
+      // Fix: Pass only one parameter to checkInstanceStatus
+      const status = await checkInstanceStatus(instanceName);
+      // Fix: Convert the status object to a string message
+      const statusMessage = status.exists && status.connected ? "conectada" : "desconectada";
+      setInstanceStatus(statusMessage);
+      
       toast({
         title: "Status da instância",
-        description: `A instância do Dify está ${status}`,
+        description: `A instância do Dify está ${statusMessage}`,
       });
     } catch (error) {
       console.error("Erro ao verificar status da instância:", error);

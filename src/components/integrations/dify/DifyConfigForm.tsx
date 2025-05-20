@@ -72,7 +72,9 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
     setIsLoading(true);
 
     try {
-      saveDifyConfig(instanceName, {
+      // Fix: Pass a single configuration object to saveDifyConfig
+      saveDifyConfig({
+        instanceName,
         difyApiKey,
         difyUrl: difyApiUrl,
         enabled,
