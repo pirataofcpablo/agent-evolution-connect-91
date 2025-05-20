@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -72,9 +71,10 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
     setIsLoading(true);
 
     try {
-      // Fix: Pass a single configuration object to saveDifyConfig
+      // Fix: Pass a single configuration object to saveDifyConfig with apiKey property
       saveDifyConfig({
         instanceName,
+        apiKey: difyApiKey,  // Fix: added apiKey to match the required property in DifyConfig interface
         difyApiKey,
         difyUrl: difyApiUrl,
         enabled,
