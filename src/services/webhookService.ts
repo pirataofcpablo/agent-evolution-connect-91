@@ -179,23 +179,59 @@ export const processIncomingMessage = async (whatsAppMessage: WhatsAppMessage): 
     
     // Check if n8n integration is configured (second priority - replaces Dify)
     const n8nConfig = getN8nConfig(baseInstanceName);
-    if (n8nConfig && n8nConfig.webhookUrl) {
+    if (n8nConfig && n8nConfig.webhookUrl && n8nConfig.enableWebhook) {
       try {
         console.log("Integração n8n encontrada. Processando mensagem...");
-        const sent = await sendMessageToN8n(text, sender, n8nConfig);
-        if (sent) {
-          console.log(`Mensagem encaminhada para n8n: ${text}`);
+        console.log("n8n config:", n8nConfig);
+        
+        // Build a simple payload with basic message info
+        const payload = {
+          message: text,
+          sender: sender,
+          instance: instanceName,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Send to n8n webhook
+        console.log("Enviando para webhook n8n:", n8nConfig.webhookUrl);
+        console.log("Payload:", payload);
+        
+        const response = await fetch(n8nConfig.webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+          console.log("Mensagem enviada com sucesso para n8n");
+          
+          try {
+            // Try to parse response if any
+            const responseData = await response.json();
+            if (responseData && responseData.response) {
+              // If n8n returns a response, send it back to WhatsApp
+              console.log(`Enviando resposta n8n para ${sender}: "${responseData.response}"`);
+              await sendWhatsAppMessage(instanceName, sender, responseData.response);
+            }
+          } catch (parseError) {
+            console.log("Nenhuma resposta JSON do n8n ou resposta vazia");
+          }
           return;
+        } else {
+          console.error("Erro na resposta do n8n:", response.status);
+          // Continue to Dify as fallback
         }
       } catch (error) {
         console.error("Erro ao processar mensagem com n8n:", error);
-        // Continue to Dify as fallback if available
+        // Continue to Dify as fallback
       }
     }
     
     // Check if Dify integration is configured (third priority after n8n)
     const difyConfig = getDifyConfig(baseInstanceName);
-    if (difyConfig) {
+    if (difyConfig && difyConfig.enabled) {
       try {
         console.log("Integração Dify encontrada. Processando mensagem...");
         
@@ -218,6 +254,8 @@ export const processIncomingMessage = async (whatsAppMessage: WhatsAppMessage): 
               .replace(/{{instance}}/g, instanceNameValue)
               .replace(/{{timestamp}}/g, currentTimestamp);
             
+            console.log("Enviando payload para n8n (Dify integration):", payload);
+            
             // Parse the JSON string to an object
             const payloadObject = JSON.parse(payload);
             
@@ -231,6 +269,7 @@ export const processIncomingMessage = async (whatsAppMessage: WhatsAppMessage): 
             });
             
             if (n8nResponse.ok) {
+              console.log("Mensagem enviada com sucesso para n8n (Dify integration)");
               // Tentar extrair resposta do n8n
               try {
                 const responseData = await n8nResponse.json();
@@ -245,6 +284,8 @@ export const processIncomingMessage = async (whatsAppMessage: WhatsAppMessage): 
               } catch (jsonError) {
                 console.error("Erro ao processar resposta do n8n:", jsonError);
               }
+            } else {
+              console.error("Erro na resposta do n8n (Dify integration):", n8nResponse.status);
             }
           } catch (n8nError) {
             console.error("Erro na comunicação com n8n:", n8nError);

@@ -71,7 +71,7 @@ const N8nConfigTab: React.FC<N8nConfigTabProps> = ({
       
       console.log("Create flow result:", result);
       
-      if (result.success && result.webhookUrl) {
+      if (result && result.success && result.webhookUrl) {
         setWebhookUrl(result.webhookUrl);
         setFlowExists(true);
         setEnableWebhook(true);

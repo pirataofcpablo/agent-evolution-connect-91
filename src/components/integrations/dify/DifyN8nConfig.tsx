@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 interface DifyN8nConfigProps {
   n8nIntegration: boolean;
@@ -43,6 +45,13 @@ const DifyN8nConfig: React.FC<DifyN8nConfigProps> = ({
 
       {n8nIntegration && (
         <div className="pl-4 border-l-2 border-blue-700/50 space-y-4">
+          <Alert className="bg-blue-900/20 border-blue-500/30 mb-4">
+            <Info className="h-5 w-5 text-blue-400" />
+            <AlertDescription className="text-gray-300">
+              Configure primeiro o fluxo do n8n na guia n8n antes de usar esta integração.
+            </AlertDescription>
+          </Alert>
+          
           <div className="space-y-2">
             <Label htmlFor="n8nWebhookUrl">URL do Webhook n8n</Label>
             <Input
@@ -67,7 +76,7 @@ const DifyN8nConfig: React.FC<DifyN8nConfigProps> = ({
               className="bg-gray-800 border-gray-700 text-white"
             />
             <p className="text-xs text-gray-400">
-              Use os placeholders {'{{message}}'}, {'{{sender}}'}, {'{{instance}}'} e {'{{timestamp}}'}
+              Use os placeholders {'{{'}'message{'}}'}, {'{{'}'sender{'}}'}, {'{{'}'instance{'}}'} e {'{{'}'timestamp{'}}'}
             </p>
           </div>
 
@@ -84,7 +93,7 @@ const DifyN8nConfig: React.FC<DifyN8nConfigProps> = ({
           {webhookPayloadExample && (
             <div className="space-y-2">
               <Label>Exemplo de Payload</Label>
-              <pre className="bg-gray-800 rounded-md p-2 text-sm text-gray-300">
+              <pre className="bg-gray-800 rounded-md p-2 text-sm text-gray-300 overflow-auto">
                 {webhookPayloadExample}
               </pre>
             </div>

@@ -1,3 +1,4 @@
+
 // API Evo service for WhatsApp connection
 
 interface DifyConfig {
@@ -17,6 +18,8 @@ interface DifyConfig {
   n8nIntegration?: boolean;
   n8nWebhookUrl?: string;
   webhookPayloadTemplate?: string;
+  registered?: boolean;
+  registeredAt?: string | null;
 }
 
 export const buildDifyAPIUrl = (config: DifyConfig) => {
