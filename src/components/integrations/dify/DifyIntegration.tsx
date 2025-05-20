@@ -36,9 +36,10 @@ const DifyIntegration: React.FC<DifyIntegrationProps> = ({ instanceName }) => {
   const handleCheckInstanceStatus = async () => {
     setCheckingStatus(true);
     try {
-      // Fix: Pass only one parameter to checkInstanceStatus
+      // Fix: Handle the result object properly
       const status = await checkInstanceStatus(instanceName);
-      // Fix: Convert the status object to a string message
+      
+      // Convert the status object to a string message
       const statusMessage = status.exists && status.connected ? "conectada" : "desconectada";
       setInstanceStatus(statusMessage);
       
