@@ -66,15 +66,15 @@ export const registerWebhook = async (instanceName: string, webhookUrl: string):
 export const sendWhatsAppMessage = async (
   instanceName: string, 
   recipient: string, 
-  message: string
+  messageText: string
 ): Promise<boolean> => {
   try {
-    if (!instanceName || !recipient || !message) {
-      console.error("Parâmetros inválidos para envio de mensagem:", {instanceName, recipient, message});
+    if (!instanceName || !recipient || !messageText) {
+      console.error("Parâmetros inválidos para envio de mensagem:", {instanceName, recipient, messageText});
       return false;
     }
 
-    console.log(`Enviando mensagem para ${recipient} via ${instanceName}: "${message}"`);
+    console.log(`Enviando mensagem para ${recipient} via ${instanceName}: "${messageText}"`);
     
     const options = {
       method: 'POST',
@@ -89,7 +89,7 @@ export const sendWhatsAppMessage = async (
           "presence": "composing"
         },
         "textMessage": {
-          "text": message
+          "text": messageText
         }
       })
     };
