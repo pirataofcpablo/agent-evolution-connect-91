@@ -1,4 +1,3 @@
-
 interface N8nConfig {
   webhookUrl: string;
   apiKey?: string;
@@ -69,7 +68,7 @@ export const createN8nFlow = async (userData: {
   try {
     console.log("Creating n8n flow for instance:", userData.instanceName);
     const n8nApiUrl = "https://n8n.whatsvenda.com/api/v1/workflows";
-    const n8nApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTViZTBlMC0wMWRjLTQ0ZGMtYTQxNy1kMzQ2ZTYzYjc1N2MiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ3NzI3NDE0fQ.9Q-wwkTsMcUjHylJTZ5ibpMZNkkOWV21CJ3m4KR114A";
+    const n8nApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTViZTBlMC0wMWRjLTQ0ZGMtYTQxNy1kMzQ2ZTYzYjc1N2MiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ3NzMwNzQwfQ.wvxSGCGZO8neECNberaX7N96tsVKH6Y9N9RaC27hn7Y";
     
     // Sanitize instance name for path (remove special characters and convert to lowercase)
     const sanitizedPath = userData.instanceName.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -151,15 +150,19 @@ export const createN8nFlow = async (userData: {
     };
 
     console.log("Sending request to create n8n flow");
+    // Adding mode: 'cors' to fix CORS issues
     const response = await fetch(n8nApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-N8N-API-KEY': n8nApiKey
       },
-      body: JSON.stringify(newWorkflow)
+      body: JSON.stringify(newWorkflow),
+      mode: 'cors'
     });
 
+    console.log("Response status:", response.status);
+    
     if (!response.ok) {
       const errorData = await response.text();
       console.error(`Failed to create n8n flow: ${response.status} - ${errorData}`);
@@ -407,16 +410,17 @@ export const sendKnowledgeToN8nAgent = async (
   }
 };
 
-// Função para verificar se o fluxo já existe
+// Fix for checkN8nFlowExists function
 export const checkN8nFlowExists = async (instanceName: string): Promise<boolean> => {
   try {
     const n8nApiBaseUrl = "https://n8n.whatsvenda.com/api/v1";
-    const n8nApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTViZTBlMC0wMWRjLTQ0ZGMtYTQxNy1kMzQ2ZTYzYjc1N2MiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ3NzI3NDE0fQ.9Q-wwkTsMcUjHylJTZ5ibpMZNkkOWV21CJ3m4KR114A";
+    const n8nApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5YTViZTBlMC0wMWRjLTQ0ZGMtYTQxNy1kMzQ2ZTYzYjc1N2MiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ3NzMwNzQwfQ.wvxSGCGZO8neECNberaX7N96tsVKH6Y9N9RaC27hn7Y";
     
     const response = await fetch(`${n8nApiBaseUrl}/workflows`, {
       headers: {
         'X-N8N-API-KEY': n8nApiKey
-      }
+      },
+      mode: 'cors'
     });
     
     if (!response.ok) {

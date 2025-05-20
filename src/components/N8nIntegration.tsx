@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
@@ -68,6 +69,9 @@ const N8nIntegration: React.FC<N8nIntegrationProps> = ({ instanceName }) => {
     checkN8nFlowExists(instanceName).then(exists => {
       setFlowExists(exists);
       setCheckingFlow(false);
+    }).catch(error => {
+      console.error("Erro ao verificar existência de fluxo:", error);
+      setCheckingFlow(false);
     });
   }, [instanceName]);
 
@@ -77,11 +81,20 @@ const N8nIntegration: React.FC<N8nIntegrationProps> = ({ instanceName }) => {
     console.log(`Attempting to create automatic flow for ${instanceName}`);
     
     try {
+      // Add more logging for debugging
+      console.log("Creating n8n flow with params:", {
+        instanceName,
+        userName: instanceName,
+        webhookUrl: ""
+      });
+      
       const result = await createN8nFlow({
         instanceName,
         userName: instanceName,
         webhookUrl: ""
       });
+      
+      console.log("Create flow result:", result);
       
       if (result.success && result.webhookUrl) {
         setWebhookUrl(result.webhookUrl);

@@ -1,4 +1,3 @@
-
 import { getDifyConfig } from './difyService';
 import { getN8nConfig, createN8nFlow } from './n8nService';
 import { getTypebotConfig } from './typebotService';
@@ -142,12 +141,12 @@ export const setupN8nForNewInstance = async (instanceName: string): Promise<bool
 };
 
 // Process incoming message and route to appropriate bot
-export const processIncomingMessage = async (message: WhatsAppMessage): Promise<void> => {
+export const processIncomingMessage = async (whatsAppMessage: WhatsAppMessage): Promise<void> => {
   try {
-    const { instanceName, sender, message: text } = message;
+    const { instanceName, sender, message: text } = whatsAppMessage;
     
     if (!instanceName || !sender || !text) {
-      console.error("Mensagem inválida recebida:", message);
+      console.error("Mensagem inválida recebida:", whatsAppMessage);
       return;
     }
     

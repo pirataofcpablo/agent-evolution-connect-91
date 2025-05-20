@@ -41,7 +41,7 @@ const DifyIntegration: React.FC<DifyIntegrationProps> = ({ instanceName }) => {
     const savedConfig = getDifyConfig(instanceName);
     if (savedConfig) {
       setDifyApiKey(savedConfig.difyApiKey || "");
-      setDifyApiUrl(savedConfig.difyApiUrl || "");
+      setDifyApiUrl(savedConfig.difyUrl || "");
       setEnabled(savedConfig.enabled);
       setN8nIntegration(savedConfig.n8nIntegration || false);
       setN8nWebhookUrl(savedConfig.n8nWebhookUrl || "");
@@ -66,7 +66,7 @@ const DifyIntegration: React.FC<DifyIntegrationProps> = ({ instanceName }) => {
     try {
       saveDifyConfig(instanceName, {
         difyApiKey,
-        difyApiUrl,
+        difyUrl: difyApiUrl,
         enabled,
         n8nIntegration,
         n8nWebhookUrl,
