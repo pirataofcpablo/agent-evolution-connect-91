@@ -107,14 +107,14 @@ const DifyConfigForm: React.FC<DifyConfigFormProps> = ({
     let template = webhookPayloadTemplate || '{"message": "{{message}}", "sender": "{{sender}}", "instance": "{{instance}}", "timestamp": "{{timestamp}}"}';
     
     // Replace placeholders with actual values
-    template = template
+    let examplePayload = template
       .replace(/{{message}}/g, messageText)
       .replace(/{{sender}}/g, senderPhone)
       .replace(/{{instance}}/g, instanceNameValue)
       .replace(/{{timestamp}}/g, currentTimestamp);
     
     try {
-      const jsonObject = JSON.parse(template);
+      const jsonObject = JSON.parse(examplePayload);
       setWebhookPayloadExample(JSON.stringify(jsonObject, null, 2));
     } catch (error) {
       console.error("Error parsing webhook template:", error);
